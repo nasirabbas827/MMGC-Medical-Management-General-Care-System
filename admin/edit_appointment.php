@@ -2,17 +2,30 @@
 session_start();
 include('config.php');
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require './PHPMailer/src/Exception.php';
+require './PHPMailer/src/PHPMailer.php';
+require './PHPMailer/src/SMTP.php';
+
 if(!isset($_SESSION["usertype"]) || $_SESSION["usertype"]!=="admin"){
-    header("Location: admin_login.php"); exit;
+    header("Location: admin_login.php"); 
+    exit;
 }
 
 if(!isset($_GET['id'])){
-    echo "Invalid request."; exit;
+    echo "Invalid request."; 
+    exit;
 }
 
 $id = intval($_GET['id']);
 $res = $conn->query("SELECT * FROM appointments WHERE id=$id");
-if($res->num_rows!=1){ echo "Appointment not found."; exit; }
+if($res->num_rows!=1){ 
+    echo "Appointment not found."; 
+    exit;
+}
+
 $app = $res->fetch_assoc();
 
 if($_SERVER["REQUEST_METHOD"]=="POST"){
@@ -29,7 +42,41 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     $stmt->bind_param("iissssssi", $patient_id, $doctor_id, $appointment_date, $start_time, $end_time, $status, $appointment_type, $notes, $id);
 
     if($stmt->execute()){
-        echo "<script>alert('Appointment updated successfully.'); window.location='view_appointments.php';</script>";
+
+        // Fetch updated patient info
+        $p = $conn->query("SELECT name, email FROM patients WHERE id=$patient_id")->fetch_assoc();
+        $patient_name = $p['name'];
+        $patient_email = $p['email'];
+
+        // Fetch updated doctor info
+        $d = $conn->query("SELECT full_name, email FROM doctors WHERE id=$doctor_id")->fetch_assoc();
+        $doctor_name = $d['full_name'];
+        $doctor_email = $d['email'];
+
+        // Email subject and body
+        $subject = "Appointment Updated";
+
+        $body = "
+        Appointment Updated:
+        -----------------------------------
+        Patient: $patient_name
+        Doctor: $doctor_name
+        Appointment Date: $appointment_date
+        Start Time: $start_time
+        End Time: $end_time
+        Status: $status
+        Type: $appointment_type
+        Notes: $notes
+        -----------------------------------
+        ";
+
+        // Send email to patient and doctor
+        sendMail($patient_email, $subject, $body);
+        sendMail($doctor_email, $subject, $body);
+
+        echo "<script>alert('Appointment updated successfully. Email notifications sent.'); window.location='view_appointments.php';</script>";
+        exit;
+
     } else {
         $error="Update failed: ".$conn->error;
     }
@@ -37,6 +84,31 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
 
 $patients = $conn->query("SELECT id,name FROM patients ORDER BY name");
 $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
+
+function sendMail($to, $subject, $body){
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'nasiryt.827@gmail.com';  
+        $mail->Password   = 'ddgc zhft gohg bjmz';    
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('nasiryt.827@gmail.com', 'MMGC-Clinic');
+        $mail->addAddress($to);
+
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        $mail->send();
+
+    } catch (Exception $e) {
+        error_log("Mailer Error: " . $mail->ErrorInfo);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -44,7 +116,6 @@ $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
     <title>Edit Appointment</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/style.css">
-
 </head>
 <body>
 <?php include('admin_navbar.php'); ?>
@@ -55,20 +126,26 @@ $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
 <?php if(isset($error)) echo "<p class='text-danger'>$error</p>"; ?>
 
 <form method="POST">
+
 <div class="form-row">
     <div class="form-group col-md-6">
         <label>Patient</label>
         <select name="patient_id" class="form-control" required>
             <?php while($p=$patients->fetch_assoc()){ ?>
-                <option value="<?= $p['id'] ?>" <?= $app['patient_id']==$p['id']?'selected':'' ?>><?= $p['name'] ?></option>
+                <option value="<?= $p['id'] ?>" <?= $app['patient_id']==$p['id']?'selected':'' ?>>
+                    <?= $p['name'] ?>
+                </option>
             <?php } ?>
         </select>
     </div>
+
     <div class="form-group col-md-6">
         <label>Doctor</label>
         <select name="doctor_id" class="form-control" required>
             <?php while($d=$doctors->fetch_assoc()){ ?>
-                <option value="<?= $d['id'] ?>" <?= $app['doctor_id']==$d['id']?'selected':'' ?>><?= $d['full_name'] ?></option>
+                <option value="<?= $d['id'] ?>" <?= $app['doctor_id']==$d['id']?'selected':'' ?>>
+                    <?= $d['full_name'] ?>
+                </option>
             <?php } ?>
         </select>
     </div>
@@ -77,15 +154,18 @@ $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
 <div class="form-row">
     <div class="form-group col-md-4">
         <label>Date</label>
-        <input type="date" name="appointment_date" class="form-control" value="<?= $app['appointment_date'] ?>" required>
+        <input type="date" name="appointment_date" class="form-control" 
+               value="<?= $app['appointment_date'] ?>" required>
     </div>
     <div class="form-group col-md-4">
         <label>Start Time</label>
-        <input type="time" name="start_time" class="form-control" value="<?= $app['start_time'] ?>" required>
+        <input type="time" name="start_time" class="form-control" 
+               value="<?= $app['start_time'] ?>" required>
     </div>
     <div class="form-group col-md-4">
         <label>End Time</label>
-        <input type="time" name="end_time" class="form-control" value="<?= $app['end_time'] ?>" required>
+        <input type="time" name="end_time" class="form-control" 
+               value="<?= $app['end_time'] ?>" required>
     </div>
 </div>
 
@@ -100,6 +180,7 @@ $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
             <option value="no-show" <?= $app['status']=='no-show'?'selected':'' ?>>No-show</option>
         </select>
     </div>
+
     <div class="form-group col-md-6">
         <label>Type</label>
         <select name="appointment_type" class="form-control">
@@ -116,6 +197,7 @@ $doctors = $conn->query("SELECT id,full_name FROM doctors ORDER BY full_name");
 
 <button type="submit" class="btn btn-primary">Update Appointment</button>
 <a href="view_appointments.php" class="btn btn-dark">View Appointments</a>
+
 </form>
 </div>
 </div>

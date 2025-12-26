@@ -2,6 +2,13 @@
 session_start();
 include('config.php');
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require './PHPMailer/src/Exception.php';
+require './PHPMailer/src/PHPMailer.php';
+require './PHPMailer/src/SMTP.php';
+
 if(!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin"){
     header("Location: admin_login.php");
     exit;
@@ -21,7 +28,43 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     $stmt->bind_param("iissssss", $patient_id, $doctor_id, $appointment_date, $start_time, $end_time, $status, $appointment_type, $notes);
 
     if($stmt->execute()){
-        $success = "Appointment added successfully.";
+
+        // Fetch patient email/name
+        $p_res = $conn->query("SELECT email, name FROM patients WHERE id = $patient_id");
+        $patient_data = $p_res->fetch_assoc();
+        $patient_email = $patient_data['email'];
+        $patient_name = $patient_data['name'];
+
+        // Fetch doctor email/name
+        $d_res = $conn->query("SELECT email, full_name FROM doctors WHERE id = $doctor_id");
+        $doctor_data = $d_res->fetch_assoc();
+        $doctor_email = $doctor_data['email'];
+        $doctor_name = $doctor_data['full_name'];
+
+        // Email subject
+        $subject = "New Appointment Scheduled";
+
+        // Email body
+        $body = "
+        Appointment Details:
+        -----------------------------------
+        Patient: $patient_name
+        Doctor: $doctor_name
+        Appointment Date: $appointment_date
+        Start Time: $start_time
+        End Time: $end_time
+        Status: $status
+        Type: $appointment_type
+        Notes: $notes
+        -----------------------------------
+        ";
+
+        // Send email to both
+        sendMail($patient_email, $subject, $body);
+        sendMail($doctor_email, $subject, $body);
+
+        $success = "Appointment added successfully. Emails sent to patient and doctor.";
+
     } else {
         $error = "Error: ".$conn->error;
     }
@@ -30,6 +73,31 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
 // Fetch patients and doctors
 $patients = $conn->query("SELECT id, name FROM patients ORDER BY name");
 $doctors = $conn->query("SELECT id, full_name FROM doctors ORDER BY full_name");
+
+function sendMail($to, $subject, $body){
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'nasiryt.827@gmail.com';  
+        $mail->Password   = 'ddgc zhft gohg bjmz';    
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('nasiryt.827@gmail.com', 'MMGC-Clinic');
+        $mail->addAddress($to);
+
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        $mail->send();
+
+    } catch (Exception $e) {
+        error_log("Mailer Error: " . $mail->ErrorInfo);
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +106,6 @@ $doctors = $conn->query("SELECT id, full_name FROM doctors ORDER BY full_name");
     <title>Add Appointment</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/style.css">
-
 </head>
 <body>
 <?php include('admin_navbar.php'); ?>
@@ -47,10 +114,12 @@ $doctors = $conn->query("SELECT id, full_name FROM doctors ORDER BY full_name");
     <div class="card mx-auto" style="max-width:600px;">
         <div class="card-body">
             <h3>Add Appointment</h3>
+
             <?php if(isset($success)) echo "<p class='text-success'>$success</p>"; ?>
             <?php if(isset($error)) echo "<p class='text-danger'>$error</p>"; ?>
 
             <form method="POST">
+
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label>Patient</label>
@@ -116,9 +185,11 @@ $doctors = $conn->query("SELECT id, full_name FROM doctors ORDER BY full_name");
 
                 <button type="submit" class="btn btn-primary">Add Appointment</button>
                 <a href="view_appointments.php" class="btn btn-dark">View Appointments</a>
+
             </form>
         </div>
     </div>
 </div>
+
 </body>
 </html>

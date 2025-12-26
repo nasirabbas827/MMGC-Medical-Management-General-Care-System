@@ -134,15 +134,15 @@ $doctors = $conn->query("SELECT full_name, specialization, qualification, profil
         
         <?php if (!isset($_SESSION['id'])): ?>
             <div class="mt-4">
-                <a href=" " class="btn btn-primary btn-custom mr-3">
+                <a href="login.php " class="btn btn-primary btn-custom mr-3">
                     <i class="fas fa-user-injured"></i> Patient Login
                 </a>
-                <a href=" " class="btn btn-outline-light btn-custom">
+                <a href="login.php " class="btn btn-outline-light btn-custom">
                     <i class="fas fa-user-md"></i> Doctor Login
                 </a>
             </div>
         <?php else: ?>
-            <a href=" " class="btn btn-success btn-custom">
+            <a href="login.php " class="btn btn-success btn-custom">
                 <i class="fas fa-tachometer-alt"></i> Go to Dashboard
             </a>
         <?php endif; ?>

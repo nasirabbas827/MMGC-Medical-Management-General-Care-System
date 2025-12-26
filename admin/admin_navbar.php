@@ -44,7 +44,7 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="proceduresLabDropdown">
           <a class="dropdown-item" href="view_procedures.php">Procedures</a>
-          <a class="dropdown-item" href="view_lab_categories.php">Lab Test Categories</a>
+          <a class="dropdown-item" href="view_lab_categories.php ">Lab Test Categories</a>
           <a class="dropdown-item" href="view_lab_tests.php">Lab Tests</a>
           <a class="dropdown-item" href="view_lab_reports.php">Lab Reports</a>
         </div>

@@ -34,7 +34,6 @@ $res = $conn->query($query);
     <title>View Patients</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/style.css">
-
 </head>
 <body>
 <?php include('admin_navbar.php'); ?>
@@ -43,7 +42,7 @@ $res = $conn->query($query);
     <h3>All Patients</h3>
 
     <form method="GET" class="form-inline mb-3">
-        <input type="text" name="search" placeholder="Search" class="form-control mr-2">
+        <input type="text" name="search" placeholder="Search" class="form-control mr-2" value="<?= htmlspecialchars($search) ?>">
         <button class="btn btn-primary">Search</button>
         <a href="view_patients.php" class="btn btn-secondary ml-2">Reset</a>
     </form>
@@ -73,6 +72,7 @@ $res = $conn->query($query);
                         <td>
                             <a href='edit_patient.php?id={$row['id']}' class='btn btn-warning btn-sm'>Edit</a>
                             <a href='view_patients.php?delete_id={$row['id']}' onclick=\"return confirm('Delete this patient?');\" class='btn btn-danger btn-sm'>Delete</a>
+                            <a href='patient_details.php?id={$row['id']}' class='btn btn-info btn-sm'>View Progress & Details</a>
                         </td>
                     </tr>";
                 }

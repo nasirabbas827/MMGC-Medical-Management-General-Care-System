@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2025 at 08:58 AM
+-- Generation Time: Dec 26, 2025 at 07:01 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -73,7 +73,10 @@ INSERT INTO `appointments` (`id`, `patient_id`, `doctor_id`, `appointment_date`,
 (8, 2, 1, '2025-11-24', '11:00:00', '11:30:00', 'confirmed', 'new', 'Consultation for symptoms', '2025-11-20 06:39:01'),
 (9, 3, 2, '2025-11-24', '12:00:00', '12:30:00', 'scheduled', 'follow-up', 'Routine follow-up', '2025-11-20 06:39:01'),
 (10, 4, 3, '2025-11-25', '09:00:00', '09:30:00', 'no-show', 'new', 'Patient did not attend', '2025-11-20 06:39:01'),
-(11, 5, 1, '2025-11-25', '10:00:00', '10:30:00', 'scheduled', 'new', 'General consultation', '2025-11-20 06:39:01');
+(11, 5, 1, '2025-12-25', '14:00:00', '18:30:00', 'scheduled', 'new', 'General consultation', '2025-11-20 06:39:01'),
+(12, 11, 7, '2025-11-23', '10:36:00', '11:36:00', 'scheduled', 'new', 'This is just for example', '2025-11-21 05:36:19'),
+(13, 11, 5, '2025-11-22', '23:41:00', '23:45:00', 'cancelled', 'new', 'This is just for video', '2025-11-21 18:41:41'),
+(14, 11, 3, '2025-12-26', '10:14:00', '11:14:00', 'scheduled', 'new', 'fds', '2025-12-26 05:14:19');
 
 -- --------------------------------------------------------
 
@@ -102,7 +105,7 @@ CREATE TABLE `doctors` (
 --
 
 INSERT INTO `doctors` (`id`, `full_name`, `email`, `phone`, `password`, `specialization`, `qualification`, `experience_years`, `consultation_fee`, `profile_image`, `bio`, `status`, `created_at`) VALUES
-(1, 'Dr. Ahsan Malik', 'ahsan.malik@example.com', '03001234567', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Cardiologist', 'MBBS, FCPS', 8, 1500.00, 'uploads/1763617902_Doctor.jpg', 'Experienced cardiologist specializing in heart diseases.', 'active', '2025-11-20 05:54:37'),
+(1, 'Dr. Ahsan Malik', 'ahsan.malik@example.com', '03001234567', '123', 'Cardiologist', 'MBBS, FCPS', 8, 1500.00, '../admin/uploads/1766641703_Cloth.jpg', 'Experienced cardiologist specializing in heart diseases.', 'active', '2025-11-20 05:54:37'),
 (2, 'Dr. Sara Khan', 'sara.khan@example.com', '03014567890', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Dermatologist', 'MBBS, MD', 5, 1200.00, 'uploads/1763617902_Doctor.jpg', 'Skin specialist with focus on cosmetic dermatology.', 'active', '2025-11-20 05:54:37'),
 (3, 'Dr. Bilal Ahmed', 'bilal.ahmed@example.com', '03131234566', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Neurologist', 'MBBS, FCPS', 10, 2000.00, 'uploads/1763617902_Doctor.jpg', 'Neurologist with extensive experience in brain and nerve disorders.', 'active', '2025-11-20 05:54:37'),
 (4, 'Dr. Mehwish Tariq', 'mehwish.tariq@example.com', '03339876543', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Gynecologist', 'MBBS, FCPS', 7, 1800.00, 'uploads/1763617902_Doctor.jpg', 'Specialist in women health and maternity care.', 'active', '2025-11-20 05:54:37'),
@@ -179,7 +182,8 @@ INSERT INTO `invoices` (`id`, `invoice_number`, `patient_id`, `description`, `ty
 (20, 'INV-1007', 2, 'MRI Scan', 'lab_test', 12000.00, 1000.00, 11000.00, 'partial', '2025-11-07', '2025-11-17', '2025-11-20 07:52:23'),
 (21, 'INV-1008', 3, 'Normal Delivery', 'procedure', 20000.00, 0.00, 20000.00, 'paid', '2025-11-08', '2025-11-22', '2025-11-20 07:52:23'),
 (22, 'INV-1009', 4, 'Gynaecology Consultation', 'consultation', 2500.00, 0.00, 2500.00, 'paid', '2025-11-09', '2025-11-19', '2025-11-20 07:52:23'),
-(23, 'INV-1010', 5, 'Lab Combo Package', 'lab_test', 3000.00, 300.00, 2700.00, 'pending', '2025-11-10', '2025-11-25', '2025-11-20 07:52:23');
+(23, 'INV-1010', 5, 'Lab Combo Package', 'lab_test', 3000.00, 300.00, 2700.00, 'pending', '2025-11-10', '2025-11-25', '2025-11-20 07:52:23'),
+(24, 'ff', 4, 'wdf', 'lab_test', 335.00, 43.00, 444.00, 'paid', '2025-12-27', '2025-12-27', '2025-12-26 05:31:10');
 
 -- --------------------------------------------------------
 
@@ -230,6 +234,17 @@ CREATE TABLE `lab_reports` (
   `doctor_remarks` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `lab_reports`
+--
+
+INSERT INTO `lab_reports` (`id`, `lab_test_id`, `procedure_id`, `patient_id`, `file_path`, `file_type`, `uploaded_by`, `uploaded_at`, `doctor_approved`, `doctor_remarks`) VALUES
+(24, 12, 19, 11, 'uploads/1763750689_MTH601.pdf', 'pdf', 2, '2025-11-21 18:44:49', 0, ''),
+(26, 12, 14, 3, '../admin/uploads/1766652067_Fall 2025_CS619_11731.pdf', 'pdf', 1, '2025-12-25 08:41:07', 1, 'fdf'),
+(27, 12, 14, 3, 'uploads/1766652193_Fall 2025_CS619_11731.pdf', 'pdf', 1, '2025-12-25 08:43:13', 1, 'fdf'),
+(28, 11, 24, 4, 'uploads/1766728066_Fall 2025_CS619_11731.pdf', 'pdf', 2, '2025-12-26 05:47:46', 0, 'fds'),
+(29, 11, 24, 4, 'uploads/1766728118_Fall 2025_CS619_11731.pdf', 'pdf', 4, '2025-12-26 05:48:38', 0, 'fdsfdfd');
+
 -- --------------------------------------------------------
 
 --
@@ -269,7 +284,7 @@ INSERT INTO `lab_tests` (`id`, `patient_id`, `doctor_id`, `category_id`, `test_n
 (13, 2, 3, 1, 'X-Ray', 1000.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
 (14, 4, 2, 2, 'MRI Scan', 5000.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
 (15, 1, 3, 2, 'Urine Test', 300.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
-(16, 3, 4, 1, 'ECG', 700.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52');
+(16, 3, 4, 1, 'ECG', 700.00, 9, NULL, 'pending', 0, '2025-11-20 07:54:52');
 
 -- --------------------------------------------------------
 
@@ -309,7 +324,33 @@ INSERT INTO `patients` (`id`, `mr_number`, `name`, `email`, `phone`, `password`,
 (7, 'MR1007', 'Zain Malik', 'zain.malik@example.com', '03001234507', 'zain123', '2001-04-11', 'male', 'O+', '104 Street, City', 'Malik Ahmed', '03002220022', '2025-11-20', 'active', '2025-11-20 06:34:59'),
 (8, 'MR1008', 'Fatima Noor', 'fatima.noor@example.com', '03001234508', 'fatima123', '1997-11-30', 'female', 'AB-', '105 Street, City', 'Noor Ahmed', '03003330033', '2025-11-20', 'active', '2025-11-20 06:34:59'),
 (9, 'MR1009', 'Usman Shah', 'usman.shah@example.com', '03001234509', 'usman123', '1999-02-02', 'male', 'A+', '106 Street, City', 'Shahzad Ahmed', '03004440044', '2025-11-20', 'active', '2025-11-20 06:34:59'),
-(10, 'MR1010', 'Hina Raza', 'hina.raza@example.com', '03001234510', 'hina123', '1996-06-16', 'female', 'B+', '107 Street, City', 'Raza Ahmed', '03005550055', '2025-11-20', 'active', '2025-11-20 06:34:59');
+(10, 'MR1010', 'Hina Raza', 'hina.raza@example.com', '03001234510', 'hina123', '1996-06-16', 'female', 'B+', '107 Street, City', 'Raza Ahmed', '03005550055', '2025-11-20', 'active', '2025-11-20 06:34:59'),
+(11, 'MR10', 'NASIR ABBAS', 'nasiryt.827@gmail.com', '03176526827', '123', '2025-11-07', 'male', 'O-', 'Street jeff xxxx\r\nAp04', 'Haider Ali', '03176526827', '2025-11-21', 'active', '2025-11-21 05:29:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `patient_vitals`
+--
+
+CREATE TABLE `patient_vitals` (
+  `id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `nurse_id` int(11) NOT NULL,
+  `blood_pressure` varchar(20) DEFAULT NULL,
+  `temperature` decimal(4,1) DEFAULT NULL,
+  `pulse_rate` int(11) DEFAULT NULL,
+  `respiratory_rate` int(11) DEFAULT NULL,
+  `oxygen_saturation` int(11) DEFAULT NULL,
+  `recorded_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `patient_vitals`
+--
+
+INSERT INTO `patient_vitals` (`id`, `patient_id`, `nurse_id`, `blood_pressure`, `temperature`, `pulse_rate`, `respiratory_rate`, `oxygen_saturation`, `recorded_at`) VALUES
+(1, 1, 10, '120/90', 44.0, 44, 44, 44, '2025-12-25 12:15:51');
 
 -- --------------------------------------------------------
 
@@ -368,7 +409,8 @@ INSERT INTO `procedures` (`id`, `patient_id`, `procedure_type`, `procedure_name`
 (22, 2, 'Ultrasound', 'Abdominal Ultrasound', 2, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
 (23, 1, 'C-Section', 'Cesarean Section', 3, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
 (24, 3, 'Normal Delivery', 'Normal Delivery', 4, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
-(25, 4, 'Surgery', 'Minor Surgery', 5, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52');
+(25, 4, 'Surgery', 'Minor Surgery', 5, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
+(26, 5, 'Ultrasound', 'dfaggg', 1, 10, '2025-12-25', '13:30:00', 'in-progress', 'fds', 'fds', 'd', '2025-12-25 08:30:55');
 
 -- --------------------------------------------------------
 
@@ -478,6 +520,14 @@ ALTER TABLE `patients`
   ADD UNIQUE KEY `mr_number` (`mr_number`);
 
 --
+-- Indexes for table `patient_vitals`
+--
+ALTER TABLE `patient_vitals`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_vitals_patient` (`patient_id`),
+  ADD KEY `fk_vitals_nurse` (`nurse_id`);
+
+--
 -- Indexes for table `payments`
 --
 ALTER TABLE `payments`
@@ -515,7 +565,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `doctors`
@@ -533,19 +583,19 @@ ALTER TABLE `doctor_schedules`
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `lab_categories`
 --
 ALTER TABLE `lab_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `lab_reports`
 --
 ALTER TABLE `lab_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `lab_tests`
@@ -557,19 +607,25 @@ ALTER TABLE `lab_tests`
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `patient_vitals`
+--
+ALTER TABLE `patient_vitals`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `procedures`
 --
 ALTER TABLE `procedures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `staff`
@@ -616,6 +672,13 @@ ALTER TABLE `lab_tests`
   ADD CONSTRAINT `lab_tests_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `lab_tests_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `lab_categories` (`id`),
   ADD CONSTRAINT `lab_tests_ibfk_4` FOREIGN KEY (`lab_staff_id`) REFERENCES `staff` (`id`);
+
+--
+-- Constraints for table `patient_vitals`
+--
+ALTER TABLE `patient_vitals`
+  ADD CONSTRAINT `fk_vitals_nurse` FOREIGN KEY (`nurse_id`) REFERENCES `staff` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_vitals_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `payments`

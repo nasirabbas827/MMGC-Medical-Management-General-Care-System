@@ -38,7 +38,7 @@ $recent_patients = $conn->query("SELECT * FROM patients ORDER BY created_at DESC
 
 <div class="container-fluid mt-4">
     <!-- Overview Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4 rad">
         <div class="col-md-3 mb-3">
             <div class="card shadow text-center">
                 <div class="card-body">
@@ -71,7 +71,7 @@ $recent_patients = $conn->query("SELECT * FROM patients ORDER BY created_at DESC
                 <div class="card-body">
                     <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i>
                     <h5>Revenue</h5>
-                    <h3>$<?php echo number_format($total_revenue, 2); ?></h3>
+                    <h3>Rs: <?php echo number_format($total_revenue, 2); ?></h3>
                 </div>
             </div>
         </div>
