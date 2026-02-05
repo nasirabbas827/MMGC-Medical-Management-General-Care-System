@@ -2,309 +2,453 @@
 session_start();
 include('config.php');
 
-// Fetch Stats for Public Display
-$total_patients = $conn->query("SELECT COUNT(*) FROM patients WHERE status = 'active'")->fetch_row()[0];
-$total_doctors = $conn->query("SELECT COUNT(*) FROM doctors WHERE status = 'active'")->fetch_row()[0];
+// Stats
+$total_patients     = $conn->query("SELECT COUNT(*) FROM patients WHERE status = 'active'")->fetch_row()[0];
+$total_doctors      = $conn->query("SELECT COUNT(*) FROM doctors WHERE status = 'active'")->fetch_row()[0];
 $total_appointments = $conn->query("SELECT COUNT(*) FROM appointments")->fetch_row()[0];
-$total_lab_tests = $conn->query("SELECT COUNT(*) FROM lab_tests")->fetch_row()[0];
-
-// Today's Appointments Count
+$total_lab_tests    = $conn->query("SELECT COUNT(*) FROM lab_tests")->fetch_row()[0];
 $today_appointments = $conn->query("SELECT COUNT(*) FROM appointments WHERE appointment_date = CURDATE()")->fetch_row()[0];
 
-// Recent Doctors for Showcase
-$doctors = $conn->query("SELECT full_name, specialization, qualification, profile_image FROM doctors WHERE status = 'active' LIMIT 6");
-?>
+// Doctors (added id)
+$doctors = $conn->query("SELECT id, full_name, specialization, qualification, profile_image, experience_years
+                         FROM doctors WHERE status = 'active' LIMIT 6");
 
+// Patient stories
+$patient_stories = $conn->query("SELECT p.name, pr.procedure_type, pr.outcome, pr.created_at
+                                 FROM procedures pr
+                                 JOIN patients p ON pr.patient_id = p.id
+                                 WHERE pr.outcome IS NOT NULL AND pr.outcome != ''
+                                 ORDER BY pr.created_at DESC LIMIT 3");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediCare Hospital - Best Healthcare in Town</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MMGC Hospital – Compassionate & Advanced Care in Karachi</title>
+    <meta name="description" content="Trusted healthcare in Karachi since 2020. Expert doctors, maternity, diagnostics, emergency & more. Book your appointment today.">
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
 
+    
     <style>
         :root {
-            --primary: #007bff;
-            --secondary: #6c757d;
-            --success: #28a745;
-            --info: #17a2b8;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --accent: #007bff;
-            --highlight: #28a745;
+            --primary:    #2563eb;       /* modern blue */
+            --primary-dark: #1d4ed8;
+            --accent:     #10b981;       /* emerald green - calming & trust */
+            --gray-dark:  #1f2937;
+            --gray:       #4b5563;
+            --light:      #f9fafb;
+            --shadow-sm:  0 4px 12px rgba(0,0,0,0.08);
+            --shadow:     0 10px 30px rgba(0,0,0,0.10);
         }
 
-        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; }
-        .hero-section {
-            height: 90vh;
-            min-height: 600px;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('./images/hotel.jpg') center/cover no-repeat;
-            color: white;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            border-bottom: 8px solid var(--highlight);
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #1f2937;
+            background: var(--light);
         }
-        .hero-section h1 {
-            font-size: 4.5rem;
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--gray-dark);
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(rgba(37,99,235,0.88), rgba(29,78,216,0.92)),
+                        url('./images/hotel.jpg') center/cover no-repeat;
+            min-height: 90vh;
+            color: white;
+            position: relative;
+        }
+        .hero-content {
+            max-width: 780px;
+        }
+        .hero-title {
+            font-size: 3.8rem;
             font-weight: 800;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+            line-height: 1.1;
+            text-shadow: 0 3px 12px rgba(0,0,0,0.5);
         }
-        .hero-section p.lead {
+        .hero-subtitle {
             font-size: 1.4rem;
-            max-width: 800px;
-            margin: 20px auto;
+            font-weight: 400;
+            max-width: 680px;
+            opacity: 0.95;
         }
-        .btn-custom {
-            padding: 14px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
+        .btn-hero {
+            padding: 0.85rem 2.4rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            transition: all 0.3s;
+            border-radius: 50rem;
+            transition: all 0.3s ease;
         }
-        .btn-custom:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .stat-card:hover {
-            transform: translateY(-10px);
-        }
-        .stat-icon {
-            font-size: 3.5rem;
-            color: var(--accent);
-            margin-bottom: 15px;
-        }
-        .section {
-            padding: 100px 0;
-        }
-        .doctor-card img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border: 5px solid var(--light);
-            margin: 0 auto 15px;
-        }
-        .card {
+        .btn-hero-primary {
+            background: var(--accent);
             border: none;
-            border-radius: 15px;
+        }
+        .btn-hero-primary:hover {
+            background: #059669;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16,185,129,0.35);
+        }
+        .btn-hero-outline {
+            border: 2px solid white;
+        }
+        .btn-hero-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Cards */
+        .card-modern {
+            border: none;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            transition: all 0.32s ease;
+            background: white;
         }
-        .card:hover {
+        .card-modern:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.14);
         }
-        footer {
-            background: var(--dark);
-            color: white;
-            padding: 60px 0 30px;
-        }
-        .feature-icon {
+        .service-icon {
             font-size: 3.5rem;
-            color: var(--highlight);
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .doctor-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            height: 260px;
+        }
+        .doctor-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.45s ease;
+        }
+        .card-modern:hover .doctor-img-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .story-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--accent);
+        }
+
+        /* Sections */
+        section {
+            padding: 7rem 0;
+        }
+        .section-title {
+            font-size: 2.6rem;
+            margin-bottom: 1.2rem;
+        }
+        .section-lead {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 720px;
+            margin: 0 auto 3rem;
+        }
+
+        .bg-gradient-contact {
+            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        footer {
+            background: var(--gray-dark);
+            color: #d1d5db;
+        }
+
+        @media (max-width: 992px) {
+            .hero-title { font-size: 3.1rem; }
+        }
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.6rem; }
+            .hero-subtitle { font-size: 1.2rem; }
+            section { padding: 5rem 0; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <?php include('navbar.php'); ?>
 
-<!-- Hero Section -->
-<section class="hero-section">
+<!-- Hero -->
+<section class="hero d-flex align-items-center text-center">
     <div class="container">
-        <h1 class="display-3 text-white">Welcome to MediCare Hospital</h1>
-        <p class="lead">Your Trusted Partner in Health & Wellness</p>
-        <p>We provide world-class medical care with compassion, expertise, and cutting-edge technology.</p>
-        
-        <?php if (!isset($_SESSION['id'])): ?>
-            <div class="mt-4">
-                <a href="login.php " class="btn btn-primary btn-custom mr-3">
-                    <i class="fas fa-user-injured"></i> Patient Login
+        <div class="hero-content mx-auto">
+            <h1 class="hero-title mb-4 text-white">MMGC Hospital</h1>
+            <p class="hero-subtitle mb-5">Compassionate Care • Advanced Diagnostics • Trusted Healing Since 2020</p>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <a href="#contact" class="btn btn-hero btn-hero-primary text-white mr-2">
+                    <i class="fas fa-calendar-check me-2 text-white"></i> Book Appointment
                 </a>
-                <a href="login.php " class="btn btn-outline-light btn-custom">
-                    <i class="fas fa-user-md"></i> Doctor Login
+                <a href="#services" class="btn btn-hero btn-hero-outline text-white mr-2">
+                    <i class="fas fa-stethoscope me-2 text-white"></i> Our Services
                 </a>
             </div>
-        <?php else: ?>
-            <a href="login.php " class="btn btn-success btn-custom">
-                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
-            </a>
-        <?php endif; ?>
+        </div>
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="section bg-light">
+<!-- Stats -->
+<section class="bg-white">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 mb-4">
-                <div class="stat-card">
-                    <i class="fas fa-user-injured stat-icon"></i>
-                    <h3 class="text-primary"><?php echo number_format($total_patients); ?>+</h3>
-                    <p class="text-muted">Happy Patients</p>
+        <div class="row text-center g-4">
+            <div class="col-md-3 col-6">
+                <div class="card-modern p-4">
+                    <i class="fas fa-users service-icon mb-3"></i>
+                    <h3 class="fw-bold"><?= number_format($total_patients) ?>+</h3>
+                    <p class="text-muted mb-0">Happy Patients</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="stat-card">
-                    <i class="fas fa-user-md stat-icon"></i>
-                    <h3 class="text-success"><?php echo $total_doctors; ?></h3>
-                    <p class="text-muted">Expert Doctors</p>
+            <div class="col-md-3 col-6">
+                <div class="card-modern p-4">
+                    <i class="fas fa-user-md service-icon mb-3"></i>
+                    <h3 class="fw-bold"><?= $total_doctors ?></h3>
+                    <p class="text-muted mb-0">Expert Doctors</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="stat-card">
-                    <i class="fas fa-calendar-check stat-icon"></i>
-                    <h3 class="text-info"><?php echo $today_appointments; ?></h3>
-                    <p class="text-muted">Appointments Today</p>
+            <div class="col-md-3 col-6">
+                <div class="card-modern p-4">
+                    <i class="fas fa-calendar-day service-icon mb-3"></i>
+                    <h3 class="fw-bold"><?= $today_appointments ?></h3>
+                    <p class="text-muted mb-0">Today’s Appointments</p>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="stat-card">
-                    <i class="fas fa-flask stat-icon"></i>
-                    <h3 class="text-warning"><?php echo number_format($total_lab_tests); ?>+</h3>
-                    <p class="text-muted">Lab Tests Conducted</p>
+            <div class="col-md-3 col-6">
+                <div class="card-modern p-4">
+                    <i class="fas fa-flask service-icon mb-3"></i>
+                    <h3 class="fw-bold"><?= number_format($total_lab_tests) ?>+</h3>
+                    <p class="text-muted mb-0">Lab Tests</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Services / Features -->
-<section class="section">
+<!-- Services -->
+<section id="services" class="bg-light">
     <div class="container">
-        <h2 class="text-center mb-5 section-title" style="font-weight:800; color:var(--dark);">Our Services</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-stethoscope feature-icon"></i>
-                    <h5>General Checkup</h5>
-                    <p>Routine health checkups and preventive care for all ages.</p>
+        <div class="text-center mb-5">
+            <h2 class="section-title">Comprehensive Healthcare Services</h2>
+            <p class="section-lead">Quality care across multiple specialties – all under one roof</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-modern text-center p-5">
+                    <i class="fas fa-stethoscope service-icon mb-4"></i>
+                    <h4>General & Specialist Consultations</h4>
+                    <p class="text-muted">Expert diagnosis and personalized treatment plans</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-baby feature-icon"></i>
-                    <h5>Maternity & Child Care</h5>
-                    <p>Complete care for mothers and newborns with expert gynecologists.</p>
+            <div class="col-md-4">
+                <div class="card-modern text-center p-5">
+                    <i class="fas fa-baby service-icon mb-4"></i>
+                    <h4>Maternity & Pediatric Care</h4>
+                    <p class="text-muted">From prenatal support to child wellness programs</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-x-ray feature-icon"></i>
-                    <h5>Diagnostic Services</h5>
-                    <p>Advanced lab tests, ultrasound, X-ray, and instant reports.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-syringe feature-icon"></i>
-                    <h5>Emergency Care</h5>
-                    <p>24/7 emergency services with rapid response team.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-user-nurse feature-icon"></i>
-                    <h5>In-Patient Care</h5>
-                    <p>Comfortable wards and dedicated nursing staff.</p>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-center p-4">
-                    <i class="fas fa-prescription-bottle-alt feature-icon"></i>
-                    <h5>Pharmacy</h5>
-                    <p>In-house pharmacy with genuine medicines at fair prices.</p>
+            <div class="col-md-4">
+                <div class="card-modern text-center p-5">
+                    <i class="fas fa-x-ray service-icon mb-4"></i>
+                    <h4>Advanced Diagnostics & Imaging</h4>
+                    <p class="text-muted">Fast, accurate lab tests, ultrasound & X-ray services</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Our Doctors -->
-<section class="section bg-light">
+<!-- Doctors -->
+<section id="doctors">
     <div class="container">
-        <h2 class="text-center mb-5 section-title" style="font-weight:800; color:var(--dark);">Meet Our Doctors</h2>
-        <div class="row">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Meet Our Specialists</h2>
+            <p class="section-lead">Highly qualified professionals dedicated to your health</p>
+        </div>
+        <div class="row g-4">
             <?php while ($doc = $doctors->fetch_assoc()): ?>
-            <div class="col-md-4 mb-4">
-                <div class="card doctor-card text-center">
-                    <?php if ($doc['profile_image'] && file_exists("admin/" . $doc['profile_image'])): ?>
-                        <img src="admin/<?php echo $doc['profile_image']; ?>" class="rounded-circle" alt="<?php echo htmlspecialchars($doc['full_name']); ?>">
-                    <?php else: ?>
-                        <img src="./images/doctor-placeholder.jpg" class="rounded-circle" alt="Doctor">
-                    <?php endif; ?>
-                    <div class="card-body">
-                        <h5 class="card-title"><?php echo htmlspecialchars($doc['full_name']); ?></h5>
-                        <p class="text-primary"><strong><?php echo htmlspecialchars($doc['specialization']); ?></strong></p>
-                        <p class="text-muted small"><?php echo htmlspecialchars($doc['qualification']); ?></p>
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern">
+                    <div class="doctor-img-wrapper">
+                        <?php if (!empty($doc['profile_image']) && file_exists("admin/" . $doc['profile_image'])): ?>
+                            <img src="admin/<?= htmlspecialchars($doc['profile_image']) ?>" alt="<?= htmlspecialchars($doc['full_name']) ?>">
+                        <?php else: ?>
+                            <img src="images/doctor-placeholder.jpg" alt="Doctor">
+                        <?php endif; ?>
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="mb-1"><?= htmlspecialchars($doc['full_name']) ?></h4>
+                        <div class="text-primary fw-bold mb-1"><?= htmlspecialchars($doc['specialization']) ?></div>
+                        <div class="text-muted small mb-2">
+                            <?= $doc['experience_years'] ? $doc['experience_years'] . '+ years experience' : 'Experienced Specialist' ?>
+                        </div>
+                        <div class="text-muted small mb-3"><?= htmlspecialchars($doc['qualification']) ?></div>
+                        <a href="doctor.php" class="btn btn-outline-primary btn-block">
+                            View Profile & Book
+                        </a>
                     </div>
                 </div>
             </div>
             <?php endwhile; ?>
         </div>
-        <div class="text-center mt-4">
-            <a href="" class="btn btn-outline-primary btn-lg">View All Doctors</a>
+        <div class="text-center mt-5">
+            <a href="doctors.php" class="btn btn-primary btn-lg px-5">See All Doctors</a>
         </div>
     </div>
 </section>
 
-<!-- Call to Action -->
-<section class="section bg-primary text-white text-center">
+<!-- Patient Stories -->
+<section id="stories" class="bg-light">
     <div class="container">
-        <h2>Book Your Appointment Today</h2>
-        <p class="lead">Get expert care from the best doctors in town</p>
-        <a href="" class="btn btn-light btn-lg btn-custom">
-            <i class="fas fa-calendar-plus"></i> Book Appointment
-        </a>
+        <div class="text-center mb-5">
+            <h2 class="section-title">Patient Success Stories</h2>
+            <p class="section-lead">Real people. Real care. Real results.</p>
+        </div>
+        <div class="row g-4">
+            <?php if ($patient_stories->num_rows > 0): ?>
+                <?php while ($story = $patient_stories->fetch_assoc()): ?>
+                <div class="col-md-4">
+                    <div class="card-modern p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="story-avatar me-3">
+                                <img src="images/patient.jpg" alt="Patient" class="w-100 h-100 object-fit-cover">
+                            </div>
+                            <div>
+                                <h5 class="mb-0"><?= htmlspecialchars($story['name']) ?></h5>
+                                <small class="text-primary"><?= htmlspecialchars($story['procedure_type']) ?></small>
+                            </div>
+                        </div>
+                        <p class="fst-italic text-muted mb-3">"<?= htmlspecialchars(substr($story['outcome'], 0, 140)) ?>…"</p>
+                        <small class="text-muted">
+                            <i class="far fa-calendar-alt me-1"></i>
+                            <?= date('F j, Y', strtotime($story['created_at'])) ?>
+                        </small>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <div class="col-12 text-center py-5">
+                    <div class="alert alert-info">Patient stories coming soon…</div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="bg-gradient-contact">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 mb-5 mb-lg-0">
+                <h2 class="mb-4 text-white">Get in Touch Today</h2>
+                <p class="lead mb-4">We're ready to assist you 24/7.</p>
+                <p><i class="fas fa-phone me-2"></i> +92 300 1234567</p>
+                <p><i class="fas fa-envelope me-2"></i> info@mmgchospital.com</p>
+                <p><i class="fas fa-map-marker-alt me-2"></i> Gulshan-e-Iqbal, Karachi, Pakistan</p>
+                <p><i class="fas fa-clock me-2"></i> 24/7 Emergency Services Available</p>
+            </div>
+            <div class="col-lg-7">
+                <div class="card-modern contact-form p-4 p-md-5">
+                    <h3 class="mb-4 text-dark">Send Us a Message</h3>
+                    <form action="send-message.php" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control form- m-2" placeholder="Full Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="email" name="email" class="form-control form-control m-2" placeholder="Email Address" required>
+                            </div>
+                            <div class="col-12">
+                                <input type="text" name="subject" class="form-control form-control m-2" placeholder="Subject" required>
+                            </div>
+                            <div class="col-12">
+                                <textarea name="message" class="form-control form-control m-2" rows="5" placeholder="How can we help you?" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-hero btn-hero-primary btn-lg w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Footer -->
-<footer>
+<footer class="py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>MediCare Hospital</h5>
-                <p>Providing quality healthcare since 2020.<br>Trusted by thousands of patients.</p>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h4 class="text-white mb-3">MMGC Hospital</h4>
+                <p class="text-muted">Delivering compassionate, modern healthcare with trust and excellence.</p>
+                <div class="mt-3">
+                    <a href="#" class="text-white fs-4 me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white fs-4 me-3"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h5>Quick Links</h5>
+            <div class="col-lg-2 col-md-4">
+                <h5 class="text-white mb-3">Quick Links</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="text-white">About Us</a></li>
-                    <li><a href="#" class="text-white">Services</a></li>
-                    <li><a href="#" class="text-white">Doctors</a></li>
-                    <li><a href="#" class="text-white">Contact</a></li>
+                    <li><a href="#services" class="text-muted text-decoration-none">Services</a></li>
+                    <li><a href="#doctors" class="text-muted text-decoration-none">Doctors</a></li>
+                    <li><a href="#stories" class="text-muted text-decoration-none">Stories</a></li>
+                    <li><a href="#contact" class="text-muted text-decoration-none">Contact</a></li>
                 </ul>
             </div>
-            <div class="col-md-4">
-                <h5>Contact Info</h5>
-                <p><i class="fas fa-phone"></i> +92 300 1234567<br>
-                   <i class="fas fa-envelope"></i> info@medicarehospital.com<br>
-                   <i class="fas fa-map-marker-alt"></i> Main Boulevard, Lahore, Pakistan</p>
+            <div class="col-lg-3 col-md-4">
+                <h5 class="text-white mb-3">Services</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-muted text-decoration-none">Emergency Care</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none">Maternity</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none">Diagnostics</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none">General OPD</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h5 class="text-white mb-3">Contact</h5>
+                <p class="mb-2"><i class="fas fa-phone me-2"></i> +92 300 1234567</p>
+                <p class="mb-2"><i class="fas fa-envelope me-2"></i> info@mmgchospital.com</p>
+                <p><i class="fas fa-map-marker-alt me-2"></i> Karachi, Pakistan</p>
             </div>
         </div>
-        <hr class="bg-white">
-        <p class="text-center mb-0">&copy; 2025 MediCare Hospital. All Rights Reserved.</p>
+        <div class="text-center mt-5 pt-4 border-top border-secondary">
+            <p class="mb-0">© <?= date('Y') ?> MMGC Hospital. All rights reserved.</p>
+        </div>
     </div>
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href'))?.scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
 </body>
 </html>

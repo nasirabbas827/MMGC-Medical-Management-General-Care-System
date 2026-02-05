@@ -7,6 +7,8 @@ $email_err = $password_err = $role_err = $login_msg = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    /* ================= INPUT VALIDATION ================= */
+
     if (empty(trim($_POST['email']))) {
         $email_err = "Email is required";
     } else {
@@ -26,10 +28,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     /* ================= DOCTOR LOGIN ================= */
-    if (empty($email_err) && empty($password_err) && $role === 'doctor') {
+    if (empty($email_err) && empty($password_err) && empty($role_err) && $role === 'doctor') {
 
         $stmt = $conn->prepare(
-            "SELECT id, full_name, email, password, status 
+            "SELECT id, full_name, email, password, status
              FROM doctors WHERE email = ? LIMIT 1"
         );
         $stmt->bind_param("s", $email);
@@ -58,10 +60,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     /* ================= STAFF LOGIN ================= */
-    if (empty($email_err) && empty($password_err) && $role === 'staff') {
+    if (empty($email_err) && empty($password_err) && empty($role_err) && $role === 'staff') {
 
         $stmt = $conn->prepare(
-            "SELECT id, full_name, email, password, staff_role, status 
+            "SELECT id, full_name, email, password, staff_role, status
              FROM staff WHERE email = ? LIMIT 1"
         );
         $stmt->bind_param("s", $email);
@@ -92,6 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     case 'accounts':
                         header("Location: accounts/accounts_dashboard.php");
                         break;
+                    default:
+                        header("Location: staff/staff_dashboard.php");
                 }
                 exit();
             } else {
@@ -102,9 +106,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $stmt->close();
     }
+
+    /* ================= PATIENT LOGIN ================= */
+    if (empty($email_err) && empty($password_err) && empty($role_err) && $role === 'patient') {
+
+        $stmt = $conn->prepare(
+            "SELECT id, name, email, password, status
+             FROM patients WHERE email = ? LIMIT 1"
+        );
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if ($res->num_rows === 1) {
+            $row = $res->fetch_assoc();
+
+            if ($row['status'] !== 'active') {
+                $login_msg = "<div class='alert alert-danger'>Account inactive</div>";
+            } elseif ($password === $row['password']) {
+
+                $_SESSION['patient_id']   = $row['id'];
+                $_SESSION['patient_name'] = $row['name'];
+                $_SESSION['role']         = 'patient';
+
+                header("Location: patient/patient_dashboard.php");
+                exit();
+            } else {
+                $password_err = "Invalid password";
+            }
+        } else {
+            $email_err = "Patient not found";
+        }
+        $stmt->close();
+    }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -125,34 +161,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <?php echo $login_msg; ?>
 
-<form method="post">
-    <?php echo $login_msg; ?>
+            <form method="post">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($email); ?>">
+                    <small class="text-danger"><?php echo $email_err; ?></small>
+                </div>
 
-    <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" class="form-control">
-        <small class="text-danger"><?php echo $email_err; ?></small>
-    </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control">
+                    <small class="text-danger"><?php echo $password_err; ?></small>
+                </div>
 
-    <div class="form-group">
-        <label>Password</label>
-        <input type="password" name="password" class="form-control">
-        <small class="text-danger"><?php echo $password_err; ?></small>
-    </div>
+                <div class="form-group">
+                    <label>Login As</label>
+                    <select name="role" class="form-control">
+                        <option value="">Select</option>
+                        <option value="doctor"  <?php if($role=='doctor') echo 'selected'; ?>>Doctor</option>
+                        <option value="staff"   <?php if($role=='staff') echo 'selected'; ?>>Staff</option>
+                        <option value="patient" <?php if($role=='patient') echo 'selected'; ?>>Patient</option>
+                    </select>
+                    <small class="text-danger"><?php echo $role_err; ?></small>
+                </div>
 
-    <div class="form-group">
-        <label>Login As</label>
-        <select name="role" class="form-control">
-            <option value="">Select</option>
-            <option value="doctor">Doctor</option>
-            <option value="staff">Staff</option>
-        </select>
-        <small class="text-danger"><?php echo $role_err; ?></small>
-    </div>
-
-    <button class="btn btn-primary btn-block">Login</button>
-</form>
-
+                <button class="btn btn-primary btn-block">Login</button>
+            </form>
+            <p class="mt-3 float-right"><a href="forgot_password.php">Reset Password</a></p>
 
         </div>
     </div>
@@ -160,4 +195,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </body>
 </html>
-

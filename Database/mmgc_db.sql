@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 26, 2025 at 07:01 AM
+-- Generation Time: Feb 05, 2026 at 08:41 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -76,7 +76,9 @@ INSERT INTO `appointments` (`id`, `patient_id`, `doctor_id`, `appointment_date`,
 (11, 5, 1, '2025-12-25', '14:00:00', '18:30:00', 'scheduled', 'new', 'General consultation', '2025-11-20 06:39:01'),
 (12, 11, 7, '2025-11-23', '10:36:00', '11:36:00', 'scheduled', 'new', 'This is just for example', '2025-11-21 05:36:19'),
 (13, 11, 5, '2025-11-22', '23:41:00', '23:45:00', 'cancelled', 'new', 'This is just for video', '2025-11-21 18:41:41'),
-(14, 11, 3, '2025-12-26', '10:14:00', '11:14:00', 'scheduled', 'new', 'fds', '2025-12-26 05:14:19');
+(14, 11, 3, '2025-12-26', '10:14:00', '11:14:00', 'scheduled', 'new', 'fds', '2025-12-26 05:14:19'),
+(15, 11, 1, '2026-01-05', '21:10:00', '23:10:00', 'scheduled', 'new', 'XYZ', '2026-01-05 16:11:07'),
+(16, 13, 1, '2026-02-06', '11:35:00', '13:37:00', 'scheduled', 'new', 'The happfdsare', '2026-02-05 06:35:19');
 
 -- --------------------------------------------------------
 
@@ -113,7 +115,7 @@ INSERT INTO `doctors` (`id`, `full_name`, `email`, `phone`, `password`, `special
 (6, 'Dr. Nadia Rehman', 'nadia.rehman@example.com', '03211223344', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Pediatrician', 'MBBS, DCH', 6, 1000.00, 'uploads/1763617902_Doctor.jpg', 'Child specialist with focus on infant care.', 'active', '2025-11-20 05:54:37'),
 (7, 'Dr. Usman Zafar', 'usman.zafar@example.com', '03451239876', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'ENT Specialist', 'MBBS, FCPS', 9, 1600.00, 'uploads/1763617902_Doctor.jpg', 'Specialized in ear, nose, and throat treatments.', 'active', '2025-11-20 05:54:37'),
 (8, 'Dr. Ayesha Siddiqui', 'ayesha.siddiqui@example.com', '03145566778', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Psychologist', 'MSc Psychology', 4, 1300.00, 'uploads/1763617902_Doctor.jpg', 'Mental health specialist focusing on therapy.', 'active', '2025-11-20 05:54:37'),
-(9, 'Dr. Khalid Niaz', 'khalid.niaz@example.com', '03030098765', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'General Physician', 'MBBS', 15, 900.00, 'uploads/1763617902_Doctor.jpg', 'General physician with broad experience.', 'active', '2025-11-20 05:54:37'),
+(9, 'Dr. Khalid Niaz', 'khalid.niaz@example.com', '03030098765', '123', 'General Physician', 'MBBS', 15, 900.00, 'uploads/1763617902_Doctor.jpg', 'General physician with broad experience.', 'active', '2025-11-20 05:54:37'),
 (10, 'Dr. Rabia Noor', 'rabia.noor@example.com', '03334455667', '*FB6E1F205D675BC29B052DB14CCEFE7759C5FF7E', 'Nutritionist', 'BS Nutrition, MS Clinical Nutrition', 3, 1100.00, 'uploads/1763617902_Doctor.jpg', 'Diet and nutrition expert.', 'active', '2025-11-20 05:54:37');
 
 -- --------------------------------------------------------
@@ -183,7 +185,8 @@ INSERT INTO `invoices` (`id`, `invoice_number`, `patient_id`, `description`, `ty
 (21, 'INV-1008', 3, 'Normal Delivery', 'procedure', 20000.00, 0.00, 20000.00, 'paid', '2025-11-08', '2025-11-22', '2025-11-20 07:52:23'),
 (22, 'INV-1009', 4, 'Gynaecology Consultation', 'consultation', 2500.00, 0.00, 2500.00, 'paid', '2025-11-09', '2025-11-19', '2025-11-20 07:52:23'),
 (23, 'INV-1010', 5, 'Lab Combo Package', 'lab_test', 3000.00, 300.00, 2700.00, 'pending', '2025-11-10', '2025-11-25', '2025-11-20 07:52:23'),
-(24, 'ff', 4, 'wdf', 'lab_test', 335.00, 43.00, 444.00, 'paid', '2025-12-27', '2025-12-27', '2025-12-26 05:31:10');
+(24, 'ff', 4, 'wdf', 'lab_test', 335.00, 43.00, 444.00, 'paid', '2025-12-27', '2025-12-27', '2025-12-26 05:31:10'),
+(25, 'dsafd', 13, 'fdsa', 'procedure', 44.00, 5.00, 54.00, 'pending', '2026-02-06', '2026-02-06', '2026-02-05 06:53:25');
 
 -- --------------------------------------------------------
 
@@ -243,7 +246,8 @@ INSERT INTO `lab_reports` (`id`, `lab_test_id`, `procedure_id`, `patient_id`, `f
 (26, 12, 14, 3, '../admin/uploads/1766652067_Fall 2025_CS619_11731.pdf', 'pdf', 1, '2025-12-25 08:41:07', 1, 'fdf'),
 (27, 12, 14, 3, 'uploads/1766652193_Fall 2025_CS619_11731.pdf', 'pdf', 1, '2025-12-25 08:43:13', 1, 'fdf'),
 (28, 11, 24, 4, 'uploads/1766728066_Fall 2025_CS619_11731.pdf', 'pdf', 2, '2025-12-26 05:47:46', 0, 'fds'),
-(29, 11, 24, 4, 'uploads/1766728118_Fall 2025_CS619_11731.pdf', 'pdf', 4, '2025-12-26 05:48:38', 0, 'fdsfdfd');
+(29, 11, 24, 4, 'uploads/1766728118_Fall 2025_CS619_11731.pdf', 'pdf', 4, '2025-12-26 05:48:38', 0, 'fdsfdfd'),
+(30, 17, 27, 13, 'uploads/1770274357_73c1e331-c472-42dc-b21c-f377dede53bb.pdf', 'pdf', 2, '2026-02-05 06:52:37', 0, 'afdsa');
 
 -- --------------------------------------------------------
 
@@ -284,7 +288,8 @@ INSERT INTO `lab_tests` (`id`, `patient_id`, `doctor_id`, `category_id`, `test_n
 (13, 2, 3, 1, 'X-Ray', 1000.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
 (14, 4, 2, 2, 'MRI Scan', 5000.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
 (15, 1, 3, 2, 'Urine Test', 300.00, NULL, NULL, 'pending', 0, '2025-11-20 07:54:52'),
-(16, 3, 4, 1, 'ECG', 700.00, 9, NULL, 'pending', 0, '2025-11-20 07:54:52');
+(16, 3, 4, 1, 'ECG', 700.00, 9, NULL, 'pending', 0, '2025-11-20 07:54:52'),
+(17, 13, 7, 2, 'dfsaea', 30.00, 9, '2026-02-06 11:50:00', 'processing', 1, '2026-02-05 06:40:46');
 
 -- --------------------------------------------------------
 
@@ -325,7 +330,8 @@ INSERT INTO `patients` (`id`, `mr_number`, `name`, `email`, `phone`, `password`,
 (8, 'MR1008', 'Fatima Noor', 'fatima.noor@example.com', '03001234508', 'fatima123', '1997-11-30', 'female', 'AB-', '105 Street, City', 'Noor Ahmed', '03003330033', '2025-11-20', 'active', '2025-11-20 06:34:59'),
 (9, 'MR1009', 'Usman Shah', 'usman.shah@example.com', '03001234509', 'usman123', '1999-02-02', 'male', 'A+', '106 Street, City', 'Shahzad Ahmed', '03004440044', '2025-11-20', 'active', '2025-11-20 06:34:59'),
 (10, 'MR1010', 'Hina Raza', 'hina.raza@example.com', '03001234510', 'hina123', '1996-06-16', 'female', 'B+', '107 Street, City', 'Raza Ahmed', '03005550055', '2025-11-20', 'active', '2025-11-20 06:34:59'),
-(11, 'MR10', 'NASIR ABBAS', 'nasiryt.827@gmail.com', '03176526827', '123', '2025-11-07', 'male', 'O-', 'Street jeff xxxx\r\nAp04', 'Haider Ali', '03176526827', '2025-11-21', 'active', '2025-11-21 05:29:03');
+(11, 'MR10', 'NASIR ABBAS', 'nasiryt.827@gmail.com', '03176526827', '81cd4e7d', '2025-11-07', 'male', 'O-', 'Street jeff xxxx\r\nAp04', 'Haider Ali', '03176526827', '2025-11-21', 'active', '2025-11-21 05:29:03'),
+(13, 'MR11', 'Haider Ali', 'haider@gmail.com', '03176526877', '123', '2026-02-05', 'male', 'O-', 'Street jeff xxxx\r\nAp04', 'Asad Ali', '3176526827', '2026-02-05', 'active', '2026-02-05 06:07:41');
 
 -- --------------------------------------------------------
 
@@ -410,7 +416,9 @@ INSERT INTO `procedures` (`id`, `patient_id`, `procedure_type`, `procedure_name`
 (23, 1, 'C-Section', 'Cesarean Section', 3, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
 (24, 3, 'Normal Delivery', 'Normal Delivery', 4, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
 (25, 4, 'Surgery', 'Minor Surgery', 5, NULL, '2025-11-20', NULL, 'planned', NULL, NULL, NULL, '2025-11-20 07:54:52'),
-(26, 5, 'Ultrasound', 'dfaggg', 1, 10, '2025-12-25', '13:30:00', 'in-progress', 'fds', 'fds', 'd', '2025-12-25 08:30:55');
+(26, 5, 'Ultrasound', 'dfaggg', 1, 10, '2025-12-25', '13:30:00', 'in-progress', 'fds', 'fds', 'd', '2025-12-25 08:30:55'),
+(27, 13, 'Normal Delivery', 'dfa', 8, NULL, '2026-02-06', '11:43:00', 'planned', NULL, NULL, NULL, '2026-02-05 06:41:06'),
+(28, 13, 'Normal Delivery', 'Normal Delivery', 5, 6, '2026-02-06', '11:42:00', 'in-progress', 'fdsa', 'fsa', 'fdsa', '2026-02-05 06:42:34');
 
 -- --------------------------------------------------------
 
@@ -442,7 +450,7 @@ INSERT INTO `staff` (`id`, `full_name`, `email`, `phone`, `password`, `staff_rol
 (5, 'David Lee', 'david.lee@example.com', '03001234504', 'david123', 'accounts', '2023-02-05', 'Morning', 'active', '2025-11-20 06:04:31'),
 (6, 'Eva Green', 'eva.green@example.com', '03001234505', 'eva123', 'nurse', '2021-11-12', 'Evening', 'inactive', '2025-11-20 06:04:31'),
 (7, 'Frank White', 'frank.white@example.com', '03001234506', 'frank123', 'reception', '2022-07-18', 'Night', 'active', '2025-11-20 06:04:31'),
-(8, 'Grace Kim', 'grace.kim@example.com', '03001234507', 'grace123', 'lab', '2020-12-01', 'Morning', 'terminated', '2025-11-20 06:04:31'),
+(8, 'Grace Kim', 'grace.kim@example.com', '03001234507', 'grace123', 'lab', '2020-12-01', 'Morning', 'active', '2025-11-20 06:04:31'),
 (9, 'Henry Adams', 'henry.adams@example.com', '03001234508', 'henry123', 'accounts', '2023-01-22', 'Evening', 'active', '2025-11-20 06:04:31'),
 (10, 'Ivy Scott', 'ivy.scott@example.com', '03001234509', 'ivy123', 'nurse', '2022-05-30', 'Night', 'active', '2025-11-20 06:04:31'),
 (11, 'Jack Turner', 'jack.turner@example.com', '03001234510', 'jack123', 'reception', '2021-08-17', 'Morning', 'active', '2025-11-20 06:04:31');
@@ -565,7 +573,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `doctors`
@@ -583,7 +591,7 @@ ALTER TABLE `doctor_schedules`
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `lab_categories`
@@ -595,19 +603,19 @@ ALTER TABLE `lab_categories`
 -- AUTO_INCREMENT for table `lab_reports`
 --
 ALTER TABLE `lab_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `lab_tests`
 --
 ALTER TABLE `lab_tests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `patient_vitals`
@@ -625,7 +633,7 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `procedures`
 --
 ALTER TABLE `procedures`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `staff`
