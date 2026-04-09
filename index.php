@@ -180,6 +180,20 @@ $patient_stories = $conn->query("SELECT p.name, pr.procedure_type, pr.outcome, p
             .hero-subtitle { font-size: 1.2rem; }
             section { padding: 5rem 0; }
         }
+        .filter-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+#teamSearchForm .form-control {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.badge-primary { background-color: var(--primary); }
+.badge-info { background-color: #17a2b8; }
     </style>
 </head>
 <body>
@@ -273,42 +287,192 @@ $patient_stories = $conn->query("SELECT p.name, pr.procedure_type, pr.outcome, p
     </div>
 </section>
 
-<!-- Doctors -->
-<section id="doctors">
+<!-- Doctors & Staff Search Section -->
+<section id="doctors" class="bg-white py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="section-title">Meet Our Specialists</h2>
-            <p class="section-lead">Highly qualified professionals dedicated to your health</p>
+            <h2 class="section-title">Our Medical Team</h2>
+            <p class="section-lead">Find experienced doctors and dedicated support staff</p>
         </div>
-        <div class="row g-4">
-            <?php while ($doc = $doctors->fetch_assoc()): ?>
-            <div class="col-lg-4 col-md-6">
-                <div class="card-modern">
-                    <div class="doctor-img-wrapper">
-                        <?php if (!empty($doc['profile_image']) && file_exists("admin/" . $doc['profile_image'])): ?>
-                            <img src="admin/<?= htmlspecialchars($doc['profile_image']) ?>" alt="<?= htmlspecialchars($doc['full_name']) ?>">
-                        <?php else: ?>
-                            <img src="images/doctor-placeholder.jpg" alt="Doctor">
-                        <?php endif; ?>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h4 class="mb-1"><?= htmlspecialchars($doc['full_name']) ?></h4>
-                        <div class="text-primary fw-bold mb-1"><?= htmlspecialchars($doc['specialization']) ?></div>
-                        <div class="text-muted small mb-2">
-                            <?= $doc['experience_years'] ? $doc['experience_years'] . '+ years experience' : 'Experienced Specialist' ?>
-                        </div>
-                        <div class="text-muted small mb-3"><?= htmlspecialchars($doc['qualification']) ?></div>
-                        <a href="doctor.php" class="btn btn-outline-primary btn-block">
-                            View Profile & Book
-                        </a>
-                    </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="filter-wrapper mb-5">
+            <form method="GET" class="form-row align-items-end justify-content-center">
+                <div class="col-md-3 my-2">
+                    <input type="text" name="search_name" class="form-control" 
+                           placeholder="Search by name..." 
+                           value="<?= htmlspecialchars($_GET['search_name'] ?? '') ?>">
                 </div>
-            </div>
-            <?php endwhile; ?>
+                <div class="col-md-3 my-2">
+                    <select name="team_type" class="form-control">
+                        <option value="all">All Team Members</option>
+                        <option value="doctor" <?= ($_GET['team_type'] ?? '') === 'doctor' ? 'selected' : '' ?>>Doctors Only</option>
+                        <option value="staff" <?= ($_GET['team_type'] ?? '') === 'staff' ? 'selected' : '' ?>>Staff Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3 my-2">
+                    <select name="specialization" class="form-control">
+                        <option value="">All Specializations / Roles</option>
+                        <?php 
+                        $spec_res = $conn->query("SELECT DISTINCT specialization FROM doctors WHERE status='active' ORDER BY specialization");
+                        while ($spec = $spec_res->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($spec['specialization']) ?>" 
+                                <?= ($_GET['specialization'] ?? '') === $spec['specialization'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($spec['specialization']) ?> (Doctor)
+                            </option>
+                        <?php endwhile; ?>
+
+                        <?php 
+                        $role_res = $conn->query("SELECT DISTINCT staff_role FROM staff WHERE status='active' ORDER BY staff_role");
+                        while ($role = $role_res->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($role['staff_role']) ?>" 
+                                <?= ($_GET['specialization'] ?? '') === $role['staff_role'] ? 'selected' : '' ?>>
+                                <?= ucfirst(htmlspecialchars($role['staff_role'])) ?> (Staff)
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                <div class="col-md-2 my-2">
+                    <button type="submit" class="btn btn-primary btn-block">Search Team</button>
+                </div>
+            </form>
         </div>
+
+        <?php
+        /* =====================
+           FETCH DOCTORS & STAFF
+        ===================== */
+        $search_name = $_GET['search_name'] ?? '';
+        $team_type   = $_GET['team_type'] ?? 'all';
+        $filter_spec = $_GET['specialization'] ?? '';
+
+        $doctors = [];
+        $staff_members = [];
+
+        // Fetch Doctors
+        if ($team_type === 'all' || $team_type === 'doctor') {
+            $doc_query = "SELECT id, full_name, specialization, qualification, profile_image, experience_years, 'doctor' as member_type 
+                          FROM doctors WHERE status = 'active'";
+            $params = [];
+            $types = '';
+
+            if (!empty($search_name)) {
+                $doc_query .= " AND full_name LIKE ?";
+                $params[] = "%$search_name%";
+                $types .= 's';
+            }
+            if (!empty($filter_spec)) {
+                $doc_query .= " AND specialization = ?";
+                $params[] = $filter_spec;
+                $types .= 's';
+            }
+            $doc_query .= " ORDER BY full_name ASC LIMIT 12";
+
+            $stmt = $conn->prepare($doc_query);
+            if (!empty($params)) $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $doctors = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+
+        // Fetch Staff
+        if ($team_type === 'all' || $team_type === 'staff') {
+            $staff_query = "SELECT id, full_name, staff_role as specialization, NULL as qualification, 
+                                   NULL as profile_image, NULL as experience_years, 'staff' as member_type 
+                            FROM staff WHERE status = 'active'";
+            $params = [];
+            $types = '';
+
+            if (!empty($search_name)) {
+                $staff_query .= " AND full_name LIKE ?";
+                $params[] = "%$search_name%";
+                $types .= 's';
+            }
+            if (!empty($filter_spec)) {
+                $staff_query .= " AND staff_role = ?";
+                $params[] = $filter_spec;
+                $types .= 's';
+            }
+            $staff_query .= " ORDER BY full_name ASC LIMIT 12";
+
+            $stmt = $conn->prepare($staff_query);
+            if (!empty($params)) $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $staff_members = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+
+        $all_team = array_merge($doctors, $staff_members);
+        ?>
+
+        <!-- Team Members Grid -->
+        <div class="row g-4">
+            <?php if (empty($all_team)): ?>
+                <div class="col-12 text-center py-5">
+                    <img src="https://illustrations.popsy.co/gray/doctor.svg" alt="No results" style="width:180px;" class="mb-3">
+                    <p class="text-muted">No team members found matching your search.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($all_team as $member): ?>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card-modern h-100">
+                            <div class="doctor-img-wrapper">
+                                <?php if ($member['member_type'] === 'doctor'): ?>
+                                    <?php if (!empty($member['profile_image']) && file_exists("admin/" . $member['profile_image'])): ?>
+                                        <img src="admin/<?= htmlspecialchars($member['profile_image']) ?>" 
+                                             alt="<?= htmlspecialchars($member['full_name']) ?>">
+                                    <?php else: ?>
+                                        <img src="images/doctor-placeholder.jpg" 
+                                             alt="<?= htmlspecialchars($member['full_name']) ?>">
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <!-- Your own default staff picture -->
+                                    <img src="images/default.png" 
+                                         alt="<?= htmlspecialchars($member['full_name']) ?>" 
+                                         style="object-fit: cover; width: 100%; height: 100%;">
+                                <?php endif; ?>
+                            </div>
+                            <div class="p-4 text-center">
+                                <h5 class="mb-1"><?= htmlspecialchars($member['full_name']) ?></h5>
+                                
+                                <div class="text-primary fw-bold mb-2">
+                                    <?= htmlspecialchars($member['specialization']) ?>
+                                    <span class="badge badge-pill badge-<?= $member['member_type'] === 'doctor' ? 'primary' : 'info' ?> ml-1">
+                                        <?= ucfirst($member['member_type']) ?>
+                                    </span>
+                                </div>
+
+                                <?php if ($member['member_type'] === 'doctor'): ?>
+                                    <div class="text-muted small mb-3">
+                                        <?= $member['experience_years'] ? $member['experience_years'] . '+ years experience' : 'Experienced Specialist' ?>
+                                    </div>
+                                    <?php if (!empty($member['qualification'])): ?>
+                                        <div class="text-muted small mb-3">
+                                            <?= htmlspecialchars($member['qualification']) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <a href="doctors.php" class="btn btn-outline-primary btn-block">
+                                        View Profile & Book
+                                    </a>
+                                <?php else: ?>
+                                    <div class="text-muted small mb-3">
+                                        <?= ucfirst($member['specialization']) ?> • Hospital Staff
+                                    </div>
+                                    <a href="#" onclick="alert('Please contact reception at +92 300 1234567 to speak with our staff.'); return false;" 
+                                       class="btn btn-outline-secondary btn-block">
+                                        Contact Staff
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($all_team)): ?>
         <div class="text-center mt-5">
-            <a href="doctors.php" class="btn btn-primary btn-lg px-5">See All Doctors</a>
+            <a href="doctors.php" class="btn btn-primary btn-lg px-5">View Complete Team</a>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 

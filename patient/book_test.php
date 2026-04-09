@@ -61,7 +61,7 @@ if (isset($_POST['book_lab'])) {
 
     // insert lab test
     $stmt = $conn->prepare("INSERT INTO lab_tests (patient_id, doctor_id, category_id, test_name, price, is_urgent) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiiidi", $patient_id, $doctor_id, $category_id, $test_name, $price, $is_urgent);
+    $stmt->bind_param("ssssss", $patient_id, $doctor_id, $category_id, $test_name, $price, $is_urgent);
     if ($stmt->execute()) {
         $booking_msg = '<div class="alert alert-success">Lab test booked successfully!</div>';
     } else {
@@ -81,7 +81,7 @@ if (isset($_POST['request_procedure'])) {
 
     // insert procedure request
     $stmt = $conn->prepare("INSERT INTO procedures (patient_id, doctor_id, procedure_type, procedure_name, procedure_date, procedure_time) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissss", $patient_id, $doctor_id, $procedure_type, $procedure_name, $procedure_date, $procedure_time);
+    $stmt->bind_param("ssssss", $patient_id, $doctor_id, $procedure_type, $procedure_name, $procedure_date, $procedure_time);
     if ($stmt->execute()) {
         $booking_msg = '<div class="alert alert-success">Procedure request submitted successfully!</div>';
     } else {
